@@ -28,10 +28,10 @@ namespace BulkyBookWeb.Controllers
             return View(objCategoryList);
         }
 
+        // ============== Create View ===================
         // GET
         public IActionResult Create()
         {
-
             return View();  
         }
 
@@ -40,10 +40,16 @@ namespace BulkyBookWeb.Controllers
         [ValidateAntiForgeryToken] // key must be valid, to help and prevent cross site forgery attack
         public IActionResult Create(Category obj)
         {
+            // check if name input = displayOrder input
+            if (obj.Name == obj.DisplayOrder.ToString())
+            {
+                // adding custom error to the Name property, for the argument string ("Name") match it inside the model
+                ModelState.AddModelError("Name", "The display order can't match the name input");
+            }
+
             /* handle validation for submitted data
              * eg: if name input is empty => in model, name cant be empty
              */
-
             if (ModelState.IsValid) // this is a method from .net core if the model is valid or not
             {
                 _db.Categories.Add(obj);
@@ -52,5 +58,51 @@ namespace BulkyBookWeb.Controllers
             }
             return View(obj);
         }
+
+        // ============== Edit View ===================
+        
+        // GET
+        // retrieve/GET data based on id
+        public IActionResult Edit(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            // [!] ways to assign the retrieved data (based on ID) to a variable
+
+            var categoryFromDb = _db.Categories.Find(id);
+            //var categoryFromDbFirst = _db.Categories.FirstOrDefault(u=>u.Id==id);
+            //var categoryFromDbSingle = _db.Categories.SingleOrDefault(u=>u.Id==id);
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryFromDb);
+        }
+
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Category obj)
+        {
+            if (obj.Name == obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("Name", "The display order can't match the name input");
+            }
+
+            if (ModelState.IsValid) 
+            {
+                _db.Categories.Add(obj);
+                _db.SaveChanges(); 
+                return RedirectToAction("Index");
+            }
+            return View(obj);
+        }
+
     }
 }

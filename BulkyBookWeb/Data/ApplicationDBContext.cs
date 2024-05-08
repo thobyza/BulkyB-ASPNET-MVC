@@ -15,6 +15,7 @@ namespace BulkyBookWeb.Data
         // public DbSet<"Model name"> "Table name"
         // in model the name is "Category" => when migrating it will create a table name of Categories automatically, just like in nodejs
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Book> Books { get; set; }  
     }
 }
 

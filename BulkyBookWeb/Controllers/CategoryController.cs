@@ -54,6 +54,10 @@ namespace BulkyBookWeb.Controllers
             {
                 _db.Categories.Add(obj);
                 _db.SaveChanges(); // post to the Db and save changes
+
+                // showing alert based on TempData, storing a message string with the key of "success"
+                TempData["success"] = "Category created successfully"; 
+
                 return RedirectToAction("Index"); // direct to Index() action
             }
             return View(obj);
@@ -97,11 +101,51 @@ namespace BulkyBookWeb.Controllers
 
             if (ModelState.IsValid) 
             {
-                _db.Categories.Add(obj);
-                _db.SaveChanges(); 
+                _db.Categories.Update(obj);
+                _db.SaveChanges();
+                TempData["success"] = "Category updated successfully"; 
                 return RedirectToAction("Index");
             }
             return View(obj);
+        }
+
+        // ============== Delete View ===================
+        // GET
+        public IActionResult Delete(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryFromDb = _db.Categories.Find(id);
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryFromDb);
+        }
+
+        // DELETE
+        //[HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePost(int? id) 
+            // why name is different here Delete"Post" ? bcs we cant have the same 'Name && Parameter' for action method
+            // Delete(int? id) is already exist above
+        {
+            var obj = _db.Categories.Find(id);
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            _db.Categories.Remove(obj);
+                _db.SaveChanges();
+            TempData["success"] = "Category deleted successfully"; 
+            return RedirectToAction("Index");
         }
 
     }
